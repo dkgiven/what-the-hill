@@ -6,7 +6,7 @@ import sassMiddleware from "node-sass-middleware";
 import path from "path";
 
 import { indexController } from "./controllers/index";
-import { userController } from "./controllers/users";
+import servicesRouter from "./routes/services";
 
 const wthApp: Application = express();
 
@@ -31,7 +31,7 @@ wthApp.use(express.static(path.join(__dirname, "public")));
 
 // Assign controllers here (for now)
 wthApp.all("/", indexController);
-wthApp.all("/users", userController);
+wthApp.use("/services", servicesRouter);
 
 // catch 404 and forward to error handler
 wthApp.use((req, res, next) => {
