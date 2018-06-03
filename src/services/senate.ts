@@ -1,5 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { xml2json } from "xml-js";
+import { Element, ElementCompact, Options, xml2js, xml2json } from "xml-js";
+import ResponseFactory from "../factory/ResponseFactory";
+import { VoteSummary } from "../types/votes/VoteSummary";
 
 export class SenateDataService {
   // All inclusive values
@@ -12,7 +14,7 @@ export class SenateDataService {
   private requestEngine: AxiosInstance = axios.create({
     baseURL: SenateDataService.BASE_SERVICE_URL,
     method: "post",
-    responseType: "json"
+    responseType: "document"
   });
 
   constructor() {
@@ -21,25 +23,32 @@ export class SenateDataService {
   public getRollCallVotes = (
     congress: number = SenateDataService.CONGRESS_MAX,
     session: number = SenateDataService.SESSION_MAX
-  ): Promise<string> => {
+  ): Promise<VoteSummary> => {
     const rollCallVoteXmlUrl: string = `roll_call_lists/${SenateDataService.constructXmlPath(congress, session)}`;
     return this.requestEngine.request({
       url: rollCallVoteXmlUrl
     }).then((response: AxiosResponse) => {
-      let responseJson: string = "";
+      let voteSummary: VoteSummary;
       try {
           if (response.status === 200) {
-            responseJson = xml2json(response.data);
-            console.log(responseJson);
+            const responseAsJson: string = xml2json(response.data, {
+              cdataKey: "value",
+              commentKey: "value",
+              // TODO: flip this to false and transform properly to VoteSummary
+              compact: true,
+              nativeType: true,
+              textKey: "value"
+            } as Options.XML2JSON);
+            const processedResponse = JSON.parse(responseAsJson);
+            voteSummary = ResponseFactory.transformtXml2JsonResponse(processedResponse, "value") as VoteSummary;
           } else {
             console.error(response.data);
           }
         } catch (error) {
           console.error(error);
         }
-      return responseJson;
-      })
-      ;
+      return voteSummary;
+      });
     }
 
   private static constructXmlPath = (
