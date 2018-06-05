@@ -8,6 +8,10 @@
         "sourceMap": true,
         "outDir": "dist",
         "baseUrl": ".",
+        "lib": [
+            /* Resolve AsyncIterator not found issue from @types/graphql */
+            "esnext"
+        ],
         "paths": {
             "*": [
                 "node_modules/*"
