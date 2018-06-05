@@ -21,11 +21,14 @@ const schema: GraphQLSchema = buildSchema(`
     result: String
     voteTally: VoteTally
   }
+  type NestedVote {
+    vote: [Vote]
+  }
   type VoteSummary {
     congress: Int
     congressYear: String
     session: Int
-    votes: [Vote]
+    votes: NestedVote
   }
   type VoteSummaryResponse {
     voteSummary: VoteSummary
