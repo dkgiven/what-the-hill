@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
-import senateRouter from "./senate";
+import { Middleware } from "express-graphql";
+import senateGraphQlRouter from "./senate";
 
 const router: Router = Router();
 
@@ -16,6 +17,6 @@ router.all("/", (req: Request, res: Response, next: NextFunction) => {
 });
 
 // Hook up services to their respective handler/router
-router.use("/senate", senateRouter);
+router.use("/senate", senateGraphQlRouter as Middleware);
 
 export default router;
