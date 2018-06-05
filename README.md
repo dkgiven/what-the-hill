@@ -8,11 +8,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-## Yarn
-This project uses [Yarn](https://yarnpkg.com/) as the package manager. Use the [Yarn Install page](https://yarnpkg.com/en/docs/install) to install Yarn on your development machine.
-
 ## Node.js
 This installation step should also install [Node.js](https://nodejs.org/), which is required to run this project.
+
+## Yarn
+This project uses [Yarn](https://yarnpkg.com/) as the package manager. Use the [Yarn Install page](https://yarnpkg.com/en/docs/install) to install Yarn on your development machine.
 
 ### Installing
 
@@ -25,6 +25,7 @@ yarn install
 
 * [Node.js](https://nodejs.org/)
 * [Express.js](https://expressjs.com/) - Express.js web framework
+* [GraphQL](https://graphql.github.io/) - GraphQL
 * [Typescript](https://www.typescriptlang.org/) - Javascript abstraction language to support typing
 
 ## Versioning
@@ -44,3 +45,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * [This Typescript Node Starter repo](https://github.com/Microsoft/TypeScript-Node-Starter/) helped guide the initial setup process of incorporating TS into the express-generator application
 * Helpful README template available from [here](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
 * Visual Studio Code Debugging was setup via [this article](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+* [Getting started with GraphQL.js](https://graphql.github.io/graphql-js/)
