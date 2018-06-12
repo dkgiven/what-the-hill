@@ -8,6 +8,7 @@ interface SenateServiceType<T> {
   id: string;
   modelType: T;
   name: string;
+  rootXmlKey: string;
   url: string;
 }
 
@@ -17,12 +18,14 @@ const serviceTypes: Array<SenateServiceType<any>> = [{
   id: "roll-call-lists",
   modelType: {} as VoteSummary,
   name: "Roll Call Lists",
+  rootXmlKey: "vote_summary",
   url: "roll_call_lists"
 } as SenateServiceType<VoteSummary>,
 {
   id: "roll-call-lists",
   modelType: {} as RollCallVote,
   name: "Roll Call Votes",
+  rootXmlKey: "roll_call_vote",
   url: "roll_call_votes"
 } as SenateServiceType<RollCallVote>];
 
@@ -84,8 +87,8 @@ export class SenateDataService {
               SenateDataService.DEFAULT_XMLJSON_CONFIG
             );
             const processedResponse = JSON.parse(responseAsJson);
-            responseObj = ResponseFactory.transformtXml2JsonResponse(
-              processedResponse,
+            responseObj = ResponseFactory.transformXml2JsonResponse(
+              processedResponse[serviceType.rootXmlKey],
               SenateDataService.VALUE_KEY
             ) as any;
           } else {

@@ -1,14 +1,9 @@
-import { AxiosResponse } from "axios";
-import { NextFunction, Request, Response, Router } from "express";
 import graphqlHttp from "express-graphql";
-import { buildSchema, GraphQLSchema } from "graphql";
+import { buildSchema, GraphQLSchema, Source } from "graphql";
 import { SenateDataService } from "../services/senate";
 import { VoteSummary } from "../types/votes/VoteSummary";
 
-const senateRouter: Router = Router();
-
 const senateService: SenateDataService = new SenateDataService();
-
 const schema: GraphQLSchema = buildSchema(`
   type VoteTally {
     absent: Int
@@ -30,18 +25,14 @@ const schema: GraphQLSchema = buildSchema(`
     session: Int
     votes: NestedVote
   }
-  type VoteSummaryResponse {
-    voteSummary: VoteSummary
-  }
   type Query {
-    getRollCallLists(congress: Int!, session: Int!): VoteSummaryResponse
+    getRollCallLists(congress: Int!, session: Int!): VoteSummary
   }
 `);
 
 const rootValue: any = {
   getRollCallLists: (args: any) => {
     return senateService.getRollCallLists(args.congress, args.session).then((votesSummary: VoteSummary) => {
-      // FIXME: This is actually a VoteSummaryResponse (due to nested "voteSummary" key)
       return votesSummary;
     });
   }
