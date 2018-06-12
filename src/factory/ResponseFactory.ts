@@ -1,4 +1,3 @@
-import { AxiosResponse } from "axios";
 import { camelCase } from "lodash";
 export default class ResponseFactory {
 
