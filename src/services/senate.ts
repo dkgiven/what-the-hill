@@ -3,31 +3,39 @@ import { Element, ElementCompact, Options, xml2js, xml2json } from "xml-js";
 import ResponseFactory from "../factory/ResponseFactory";
 import { RollCallVote } from "../types/votes/RollCallVote";
 import { VoteSummary } from "../types/votes/VoteSummary";
+import { prependStrRecursively } from "../utils/StringUtils";
 
-interface SenateServiceType<T> {
+interface SenateServiceType {
   id: string;
-  modelType: T;
   name: string;
+  relativeUrlFunc: (congress: number, session: number, voteNum?: number) => string;
   rootXmlKey: string;
   url: string;
 }
 
 // TODO: Move into own config
 // TODO: modelType doesn't do much good here
-const serviceTypes: Array<SenateServiceType<any>> = [{
+const serviceTypes: SenateServiceType[] = [{
   id: "roll-call-lists",
-  modelType: {} as VoteSummary,
   name: "Roll Call Lists",
+  relativeUrlFunc: (congress: number, session: number) => {
+    return `vote_menu_${congress}_${session}.xml`;
+  },
   rootXmlKey: "vote_summary",
   url: "roll_call_lists"
-} as SenateServiceType<VoteSummary>,
+} as SenateServiceType,
 {
-  id: "roll-call-lists",
-  modelType: {} as RollCallVote,
+  id: "roll-call-votes",
   name: "Roll Call Votes",
+  relativeUrlFunc: (congress: number, session: number, voteNum: number) => {
+    let voteNumStr = voteNum.toFixed(0);
+    // NOTE: Senate.gove url expects padded str with length === 5
+    voteNumStr = prependStrRecursively("0", voteNumStr, 5);
+    return `vote${congress}${session}/vote_${congress}_${session}_${voteNumStr}.xml`;
+  },
   rootXmlKey: "roll_call_vote",
   url: "roll_call_votes"
-} as SenateServiceType<RollCallVote>];
+} as SenateServiceType];
 
 export class SenateDataService {
   // All inclusive values
@@ -52,28 +60,29 @@ export class SenateDataService {
   });
 
   constructor() {
-    console.log(
-      `SenateDataService initialized with config = [${this.requestEngine.toString()}]`
+    console.debug(
+      `SenateDataService initialized with config = [${JSON.stringify(this.requestEngine.defaults, undefined, 4)}]`
     );
   }
   public getRollCallVotes = (
     congress: number = SenateDataService.CONGRESS_MAX,
-    session: number = SenateDataService.SESSION_MAX
-  ): Promise<VoteSummary> => {
-    const rollCallVotes: SenateServiceType<RollCallVote> = serviceTypes.filter((service) => service.id === "roll-call-votes")[0];
-    return this.getServiceResponse(rollCallVotes, congress, session);
+    session: number = SenateDataService.SESSION_MAX,
+    voteNum: number = 1
+  ): Promise<RollCallVote> => {
+    const rollCallVotes: SenateServiceType = this.getSerivceType("roll-call-votes");
+    return this.getServiceResponse(rollCallVotes, congress, session, voteNum);
   };
 
   public getRollCallLists = (
     congress: number = SenateDataService.CONGRESS_MAX,
     session: number = SenateDataService.SESSION_MAX
   ): Promise<VoteSummary> => {
-    const rollCallLists: SenateServiceType<VoteSummary> = serviceTypes.filter((service) => service.id === "roll-call-lists")[0];
+    const rollCallLists: SenateServiceType = this.getSerivceType("roll-call-lists");
     return this.getServiceResponse(rollCallLists, congress, session);
   }
 
-  public getServiceResponse = (serviceType: SenateServiceType<any>, congress: number , session: number): Promise<any> => {
-    const relativeUrlWithXmlPath: string = `${serviceType.url}/${SenateDataService.constructXmlPath(congress, session)}`;
+  public getServiceResponse = (serviceType: SenateServiceType, congress: number , session: number, voteNum?: number): Promise<any> => {
+    const relativeUrlWithXmlPath: string = `${serviceType.url}/${serviceType.relativeUrlFunc(congress, session, voteNum)}`;
     return this.requestEngine
       .request({
         url: relativeUrlWithXmlPath
@@ -100,11 +109,7 @@ export class SenateDataService {
         return responseObj;
       });
   };
-
-  private static constructXmlPath = (
-    congress: number = SenateDataService.CONGRESS_MAX,
-    session: number = SenateDataService.SESSION_MAX
-  ): string => {
-    return `vote_menu_${congress}_${session}.xml`;
-  };
+  private getSerivceType = (id: string): SenateServiceType => {
+    return serviceTypes.filter((service) => service.id === id)[0];
+  }
 }
