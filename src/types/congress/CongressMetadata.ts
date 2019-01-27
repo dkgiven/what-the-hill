@@ -1,5 +1,5 @@
-export interface CongressMetaData {
+export interface CongressMetadata {
   congress: number;
-  congressYear: Date;
+  congressYear?: Date;
   session: number;
 }
